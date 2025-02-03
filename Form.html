@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container, #output {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 420px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        h2 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, textarea:focus {
+            border-color: #28a745;
+        }
+        .error-box {
+            color: white;
+            background: red;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 48%;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .reset-btn {
+            background: #dc3545;
+        }
+        .reset-btn:hover {
+            background: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <form id="myForm">
+            <div class="error-box" id="errorBox"></div>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required onfocus="highlight(this)" onblur="removeHighlight(this)">
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required onfocus="highlight(this)" onblur="removeHighlight(this)">
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone</label>
+                <input type="text" id="phone" required onfocus="highlight(this)" onblur="removeHighlight(this)">
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <textarea id="address" required onfocus="highlight(this)" onblur="removeHighlight(this)"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required onfocus="highlight(this)" onblur="removeHighlight(this)">
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="confirm" required>
+                <label for="confirm">I confirm the details</label>
+            </div>
+            <div class="button-group">
+                <button type="reset" class="reset-btn">Reset</button>
+                <button type="submit">Register</button>
+            </div>
+        </form>
+    </div>
+    <div id="output" style="display:none;"></div>
+
+    <script>
+        function highlight(element) {
+            element.style.border = "2px solid blue";
+        }
+        function removeHighlight(element) {
+            element.style.border = "1px solid #ccc";
+        }
+
+        document.getElementById('myForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            let isValid = true;
+            let errorMessages = [];
+            const phone = document.getElementById('phone').value;
+            const phoneRegex = /^[6789]\d{9}$/;
+            const name = document.getElementById('name').value;
+            const nameRegex = /^[A-Za-z ]+$/;
+            const password = document.getElementById('password').value;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!phoneRegex.test(phone)) {
+                errorMessages.push("Invalid phone number! It should start with 6,7,8,9 and have exactly 10 digits.");
+                isValid = false;
+            }
+            if (!nameRegex.test(name)) {
+                errorMessages.push("Invalid name! Name should not contain numbers.");
+                isValid = false;
+            }
+            if (!passwordRegex.test(password)) {
+                errorMessages.push("Invalid password! Must be at least 8 characters long, include uppercase, lowercase, number, and special character.");
+                isValid = false;
+            }
+            const fields = ["name", "email", "phone", "address", "password"];
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    errorMessages.push(field.charAt(0).toUpperCase() + field.slice(1) + " is required!");
+                    isValid = false;
+                }
+            });
+            if (!document.getElementById("confirm").checked) {
+                errorMessages.push("Please confirm the details before submitting.");
+                isValid = false;
+            }
+            if (!isValid) {
+                document.getElementById('errorBox').innerHTML = errorMessages.join('<br>');
+                document.getElementById('errorBox').style.display = 'block';
+            } else {
+                document.getElementById('errorBox').style.display = 'none';
+                document.getElementById('output').innerHTML = `
+                    <h3>Form Submitted Successfully!</h3>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${document.getElementById('email').value}</p>
+                    <p><strong>Phone:</strong> ${phone}</p>
+                    <p><strong>Address:</strong> ${document.getElementById('address').value}</p>
+                `;
+                document.getElementById('output').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
